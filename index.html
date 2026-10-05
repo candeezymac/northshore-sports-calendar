@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Sports Calendar</title>
+  <meta name="description" content="Free and cheap high school, college and minor-league games near Deerfield, IL.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏟️</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1>🏟️ Local Sports Calendar</h1>
+      <p class="sub">Free &amp; cheap games near <span id="home-name">Deerfield</span>: high school, college &amp; minor league</p>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <aside class="filters" id="filters">
+      <div class="filters-head">
+        <button class="filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filters-body">
+          Filters <span id="active-count" class="pill"></span>
+        </button>
+        <button class="link" id="reset">Reset</button>
+      </div>
+      <div class="filters-body" id="filters-body">
+        <input type="search" id="q" placeholder="Search team, school, venue…" aria-label="Search">
+        <fieldset id="when-box"><legend>When</legend><div class="chips" data-key="when" data-single></div></fieldset>
+        <fieldset><legend>Distance from home</legend><div class="chips" data-key="dist" data-single></div></fieldset>
+        <fieldset><legend>Cost</legend><div class="chips" data-key="cost"></div></fieldset>
+        <fieldset><legend>Type</legend><div class="chips" data-key="cat"></div></fieldset>
+        <fieldset><legend>Level</legend><div class="chips" data-key="level"></div></fieldset>
+        <fieldset><legend>Boys / Girls</legend><div class="chips" data-key="gender"></div></fieldset>
+        <fieldset><legend>Sport</legend><div class="chips" data-key="sport"></div></fieldset>
+        <fieldset><legend>School / Team</legend><div class="chips" data-key="team"></div></fieldset>
+      </div>
+    </aside>
+
+    <section class="results">
+      <div class="toolbar">
+        <div class="count" id="count">Loading…</div>
+        <div class="seg" role="tablist" aria-label="View">
+          <button role="tab" data-view="list" aria-selected="true">List</button>
+          <button role="tab" data-view="cal" aria-selected="false">Calendar</button>
+        </div>
+      </div>
+      <div id="list" class="list"></div>
+      <div id="cal" class="cal" hidden></div>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <div id="updated"></div>
+    <details><summary>Sources</summary><ul id="sources"></ul></details>
+    <p class="fine">Costs are best guesses from typical pricing. Check the event link before you go.</p>
+  </footer>
+
+  <dialog id="detail" aria-labelledby="d-title">
+    <form method="dialog"><button class="close" aria-label="Close">✕</button></form>
+    <div id="d-body"></div>
+  </dialog>
+</body>
+</html>

@@ -1,0 +1,51 @@
+# Every schedule the pipeline pulls. Add a source here; no code change needed
+# if its `type` already has an adapter (gobound, wmt, ics, manual).
+#
+#   id        short unique key (used in filters + status)
+#   name      display name (also the "School / Team" filter label)
+#   type      adapter: gobound | wmt | ics | manual
+#   category  High School | College | Pro / Minor
+#   enabled   set false to skip without deleting
+
+home:
+  name: Deerfield, IL
+  lat: 42.1711
+  lon: -87.8445
+
+window_days: 120   # how far ahead to keep events
+
+sources:
+  # ---- High schools (GoBound iCal: gobound.com/il/schools/<slug>/calendar/ical)
+  - {id: deerfield,      name: Deerfield HS,       type: gobound, slug: deerfield,      category: High School}
+  - {id: highlandpark,   name: Highland Park HS,   type: gobound, slug: highlandpark,   category: High School}
+  - {id: lakeforest,     name: Lake Forest HS,     type: gobound, slug: lakeforest,     category: High School}
+  - {id: stevenson,      name: Stevenson HS,       type: gobound, slug: stevenson,      category: High School}
+  - {id: glenbrooknorth, name: Glenbrook North HS, type: gobound, slug: glenbrooknorth, category: High School}
+  - {id: glenbrooksouth, name: Glenbrook South HS, type: gobound, slug: glenbrooksouth, category: High School}
+  - {id: newtrier,       name: New Trier HS,       type: gobound, slug: newtrier,       category: High School}
+  - {id: libertyville,   name: Libertyville HS,    type: gobound, slug: libertyville,   category: High School}
+
+  # ---- Colleges
+  - id: northwestern
+    name: Northwestern
+    type: wmt
+    base_url: https://nusports.com
+    category: College
+    home_venue: {name: "Northwestern campus, Evanston", lat: 42.0565, lon: -87.6753}
+
+  # ---- One-off events typed in by hand (manual_events.yaml)
+  - {id: manual, name: Other events, type: manual, file: manual_events.yaml, category: Other}
+
+# Cost tiers: Free | $ (roughly under $15) | $$ (pricier / ticketed) | Unknown
+# Feeds don't publish prices, so these are best-guess rules. First match wins.
+# Match keys (all optional): category, source, sport (list ok), level, title_regex.
+cost_rules:
+  - {category: High School, title_regex: "(?i)\\bIHSA\\b|regional|sectional|super-?sectional|state final",
+     tier: "$", note: "IHSA postseason: tickets usually required (~$5–8)"}
+  - {category: High School, sport: [Football, Basketball], level: Varsity,
+     tier: "$", note: "Varsity football/basketball often has a small gate fee (~$5); students & kids often free"}
+  - {category: High School, tier: Free, note: "Regular-season high school events are usually free"}
+  - {source: northwestern, sport: [Football, Basketball], tier: "$$", note: "Ticketed (nusports.com/tickets)"}
+  - {source: northwestern, sport: [Lacrosse, Softball, Volleyball, Wrestling], tier: "$",
+     note: "Usually ticketed but inexpensive; check nusports.com/tickets"}
+  - {source: northwestern, tier: Free, note: "Most Northwestern Olympic-sport events are free"}

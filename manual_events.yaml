@@ -1,0 +1,16 @@
+# One-off events you hear about that aren't in any feed (tournaments, camps, etc.).
+# Times are Chicago local. Remove the leading "#" to enable an example.
+#
+# - title: Deerfield Park District 3v3 Basketball Tournament
+#   sport: Basketball
+#   start: 2026-11-14T10:00
+#   end: 2026-11-14T15:00        # optional
+#   location: Jewett Park Community Center
+#   lat: 42.1660                 # optional (enables the distance filter)
+#   lon: -87.8460
+#   cost: Free                   # Free | $ | $$ | Unknown
+#   cost_note: Free to watch
+#   url: https://www.deerfieldparks.org
+#   category: Other              # High School | College | Pro / Minor | Other
+
+[]

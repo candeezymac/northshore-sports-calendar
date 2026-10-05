@@ -2,7 +2,7 @@
 
 See README.md for the full picture. Quick notes:
 
-- Static site (index.html/app.js/styles.css, vanilla JS + FullCalendar from jsDelivr) + Python pipeline in `pipeline/`.
+- Static site (index.html/app.js/styles.css, vanilla JS + FullCalendar (jsDelivr) + Leaflet (cdnjs) with OSM tiles) + Python pipeline in `pipeline/`.
 - Python deps live in `.venv` (local Python is 3.9, so keep code 3.9-compatible; CI uses 3.12). Run `.venv/bin/python -W ignore pipeline/fetch.py`.
 - Serve with `./start.sh` (port 8000). Never test via file://.
 - New sources go in `sources.yaml`. Only write a new adapter if no existing `type` fits. Each adapter returns `common.event(...)` dicts.

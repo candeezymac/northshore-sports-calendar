@@ -5,6 +5,7 @@ Datetimes are UTC; midnight Central with tba/all-day flags means "time TBA".
 """
 from __future__ import annotations
 
+import re
 from datetime import datetime, timedelta, timezone
 
 from common import CHICAGO, http_get, event, norm_gender, norm_sport
@@ -52,7 +53,8 @@ def _to_event(r, start, src, hv, base):
 
     lat = lon = None
     location = r.get("location") or ""
-    if venue == "home" and hv:
+    # home_regex keeps off-campus "home" events (e.g. golf at a country club) off the campus pin
+    if venue == "home" and hv and re.search(src.get("home_regex", "."), location or hv.get("name", ""), re.I):
         lat, lon = hv.get("lat"), hv.get("lon")
         location = location or hv.get("name", "")
 

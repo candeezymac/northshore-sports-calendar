@@ -6,7 +6,9 @@
   <title>Local Sports Calendar</title>
   <meta name="description" content="Free and cheap high school, college and minor-league games near Deerfield, IL.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏟️</text></svg>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js" defer></script>
   <script src="app.js" defer></script>
 </head>
@@ -29,7 +31,7 @@
       <div class="filters-body" id="filters-body">
         <input type="search" id="q" placeholder="Search team, school, venue…" aria-label="Search">
         <fieldset id="when-box"><legend>When</legend><div class="chips" data-key="when" data-single></div></fieldset>
-        <fieldset><legend>Distance from home</legend><div class="chips" data-key="dist" data-single></div></fieldset>
+        <fieldset><legend>Distance from Deerfield</legend><div class="chips" data-key="dist" data-single></div></fieldset>
         <fieldset><legend>Cost</legend><div class="chips" data-key="cost"></div></fieldset>
         <fieldset><legend>Type</legend><div class="chips" data-key="cat"></div></fieldset>
         <fieldset><legend>Level</legend><div class="chips" data-key="level"></div></fieldset>
@@ -45,10 +47,15 @@
         <div class="seg" role="tablist" aria-label="View">
           <button role="tab" data-view="list" aria-selected="true">List</button>
           <button role="tab" data-view="cal" aria-selected="false">Calendar</button>
+          <button role="tab" data-view="map" aria-selected="false">Map</button>
         </div>
       </div>
       <div id="list" class="list"></div>
       <div id="cal" class="cal" hidden></div>
+      <div id="map-wrap" hidden>
+        <div id="map" class="map"></div>
+        <div class="map-legend" id="map-legend"></div>
+      </div>
     </section>
   </main>
 

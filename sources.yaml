@@ -32,6 +32,7 @@ sources:
     base_url: https://nusports.com
     category: College
     home_venue: {name: "Northwestern campus, Evanston", lat: 42.0565, lon: -87.6753}
+    home_regex: "Evanston"   # only these "home" events get the campus coordinates
 
   # ---- One-off events typed in by hand (manual_events.yaml)
   - {id: manual, name: Other events, type: manual, file: manual_events.yaml, category: Other}

@@ -63,8 +63,9 @@ def main(only: list[str]) -> None:
     for e in by_id.values():
         if not (lo <= e["start"][:10] <= hi):
             continue
-        if "lat" in e:  # carried-forward events from a previous run already have miles
-            e["miles"] = _miles(home, e.pop("lat"), e.pop("lon"))
+        if e.get("lat") is not None and e.get("lon") is not None:  # kept for the map view
+            e["lat"], e["lon"] = round(e["lat"], 5), round(e["lon"], 5)
+        e["miles"] = _miles(home, e.get("lat"), e.get("lon"))
         if "cost" not in e:
             e["cost"], e["cost_note"] = _cost(e, cfg.get("cost_rules", []))
         events.append(e)

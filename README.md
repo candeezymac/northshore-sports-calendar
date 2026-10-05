@@ -43,9 +43,10 @@ GitHub Actions (`.github/workflows/refresh.yml`) runs the pipeline nightly, and 
 
 ## Page features
 
-- Filters: When, Distance from home, Cost, Type, Level (Varsity by default), Boys/Girls, Sport, School/Team, and text search. Counts on each chip show how many events that choice would give.
+- Filters: When, Distance from Deerfield, Cost, Type, Level (Varsity by default), Boys/Girls, Sport, School/Team, and text search. Counts on each chip show how many events that choice would give.
 - Filters live in the URL, so a filtered view can be bookmarked or shared.
 - List view grouped by day, or a calendar view (month grid / month list). The calendar ignores "When" and has its own month navigation.
+- **Map view** (Leaflet + OpenStreetMap tiles): one dot per venue, sized by how many games it hosts and colored by type, with a dashed ring for the distance filter. Click a dot to see its games; click a game for details. Events with no known location (e.g. Northwestern away games) aren't shown on the map.
 - Each event's detail card has a map link, the event page link, and an **Add to my calendar** button (.ics download).
 
 ## Roadmap

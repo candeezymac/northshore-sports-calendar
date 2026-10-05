@@ -120,3 +120,22 @@ dialog dd { margin: 0; overflow-wrap: anywhere; }
 .fine { font-size: 12px; }
 
 a { color: var(--accent); }
+
+/* map */
+.map { height: min(70vh, 640px); border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); z-index: 0; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.map-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+.map-legend .hint { flex-basis: 100%; font-size: 12px; }
+@media (prefers-color-scheme: dark) {
+  .map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9); }
+}
+.home-pin { font-size: 20px; line-height: 24px; text-align: center; filter: drop-shadow(0 1px 2px rgba(0,0,0,.4)); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--ink); }
+.leaflet-popup-content { margin: 10px 12px; font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.pop-h { font-weight: 650; font-size: 14px; }
+.pop-sub { color: var(--muted); margin-bottom: 6px; }
+.pop-row { display: block; width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 5px 0; color: var(--ink); }
+.pop-row:hover { color: var(--accent); }
+.pop-row .badge { font-size: 10px; padding: 0 5px; }
+.pop-more { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--accent); font-size: 12px; padding: 6px 0 0; border-top: 1px solid var(--line); }
+.pop { max-height: 320px; overflow-y: auto; }

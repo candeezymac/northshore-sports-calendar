@@ -1,4 +1,4 @@
-/* Local Sports Calendar: loads data/events.json, filters it, renders list + calendar. */
+/* Local Sports Calendar: loads data/events.json, filters it, renders list / calendar / map. */
 "use strict";
 
 const TZ = "America/Chicago";
@@ -25,7 +25,7 @@ const EMOJI = {
 };
 const emoji = (s) => EMOJI[s] || "🏅";
 
-let ALL = [], state = {}, view = "list", shown = PAGE, calendar = null;
+let ALL = [], HOME = null, state = {}, view = "list", shown = PAGE, calendar = null;
 const $ = (s) => document.querySelector(s);
 
 /* ---------- dates ---------- */
@@ -59,7 +59,7 @@ function readHash() {
   for (const k of MULTI) {
     s[k] = new Set(p.has(k) ? p.get(k).split("|").filter(Boolean) : DEFAULTS[k] || []);
   }
-  view = p.get("view") === "cal" ? "cal" : "list";
+  view = ["cal", "map"].includes(p.get("view")) ? p.get("view") : "list";
   return s;
 }
 function writeHash() {
@@ -71,7 +71,7 @@ function writeHash() {
     if (v !== d) p.set(k, v);
   }
   if (state.q) p.set("q", state.q);
-  if (view === "cal") p.set("view", "cal");
+  if (view !== "list") p.set("view", view);
   history.replaceState(null, "", "#" + p.toString());
 }
 
@@ -197,6 +197,76 @@ function renderCal(events) {
   calendar.updateSize();
 }
 
+/* ---------- map view ---------- */
+const CAT_COLOR = { "High School": "#2f7ed8", College: "#8e44ad", "Pro / Minor": "#e67e22", Other: "#16a085" };
+let map = null, mapLayer = null, mapDist = null;
+function renderMap(events) {
+  if (!window.L) { $("#map").textContent = "Map library failed to load."; return; }
+  if (!map) {
+    map = L.map("map", { scrollWheelZoom: false }).setView([HOME.lat, HOME.lon], 11);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+    L.marker([HOME.lat, HOME.lon], { title: HOME.name, icon: L.divIcon({ className: "home-pin", html: "🏠", iconSize: [24, 24] }) })
+      .bindTooltip(HOME.name.split(",")[0]).addTo(map);
+    mapLayer = L.layerGroup().addTo(map);
+    $("#map").addEventListener("click", (ev) => {
+      const b = ev.target.closest("[data-id]"); if (b) return openDetail(b.dataset.id);
+      const v = ev.target.closest("[data-venue]");
+      if (v) { state.q = v.dataset.venue; $("#q").value = state.q; view = "list"; shown = PAGE; update(); }
+    });
+    $("#map-legend").innerHTML = Object.entries(CAT_COLOR).map(([k, c]) => `<span><i style="background:${c}"></i>${k}</span>`).join("") +
+      '<span class="hint">Bigger dot = more games. Click a dot for its schedule.</span>';
+  }
+  map.invalidateSize();
+  mapLayer.clearLayers();
+
+  // one dot per venue (events at the same coordinates)
+  const venues = new Map();
+  let noLoc = 0;
+  for (const e of events) {
+    if (e.lat == null) { noLoc++; continue; }
+    const k = e.lat.toFixed(4) + "," + e.lon.toFixed(4);
+    if (!venues.has(k)) venues.set(k, []);
+    venues.get(k).push(e);
+  }
+  for (const evs of venues.values()) {
+    const e0 = evs[0];
+    const names = {}; for (const e of evs) if (e.location) names[e.location] = (names[e.location] || 0) + 1;
+    const vname = Object.keys(names).sort((a, b) => names[b] - names[a])[0] || "Venue";
+    const cats = new Set(evs.map((e) => e.category));
+    const color = cats.size === 1 ? CAT_COLOR[e0.category] || CAT_COLOR.Other : "#555";
+    const rows = evs.slice(0, 12).map((e) =>
+      `<button class="pop-row" data-id="${esc(e.id)}"><b>${fmtShort(e)}</b> ${emoji(e.sport)} ${esc(e.title)} <span class="badge c-${e.cost}">${COST_LABEL[e.cost]}</span></button>`).join("");
+    const more = evs.length > 12 ? `<button class="pop-more" data-venue="${esc(vname)}">+${evs.length - 12} more: see all in List view</button>` : "";
+    L.circleMarker([e0.lat, e0.lon], {
+      radius: Math.min(6 + Math.sqrt(evs.length) * 3, 22), color: "#fff", weight: 1.5, fillColor: color, fillOpacity: 0.85,
+    }).bindPopup(`<div class="pop"><div class="pop-h">${esc(vname)}</div>
+        <div class="pop-sub">${evs.length} game${evs.length === 1 ? "" : "s"}${e0.miles != null ? ` · ${e0.miles} mi from ${esc(HOME.name.split(",")[0])}` : ""}</div>${rows}${more}</div>`,
+      { maxWidth: 340, minWidth: 240 })
+      .bindTooltip(`${esc(vname)}: ${evs.length} game${evs.length === 1 ? "" : "s"}`)
+      .addTo(mapLayer);
+  }
+
+  // distance ring for the current filter; re-fit when the distance changes
+  if (state.dist !== "any") {
+    L.circle([HOME.lat, HOME.lon], { radius: +state.dist * 1609.34, color: "#888", weight: 1, dashArray: "4 4", fill: false, interactive: false }).addTo(mapLayer);
+  }
+  if (mapDist !== state.dist) {
+    mapDist = state.dist;
+    const pts = [...venues.values()].map((v) => [v[0].lat, v[0].lon]).concat([[HOME.lat, HOME.lon]]);
+    // wait a frame so the just-unhidden map has its real size before fitting
+    requestAnimationFrame(() => {
+      map.invalidateSize();
+      if (state.dist !== "any") map.fitBounds(L.latLng(HOME.lat, HOME.lon).toBounds(+state.dist * 1609.34 * 2), { padding: [10, 10] });
+      else if (pts.length > 1) map.fitBounds(pts, { padding: [20, 20], maxZoom: 13 });
+    });
+  }
+  return { venues: venues.size, noLoc };
+}
+const fmtShort = (e) => new Date(e.start.slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US",
+  { weekday: "short", month: "numeric", day: "numeric", timeZone: "UTC" }) + " " + (e.all_day ? "" : fmtTime(e).replace(":00", "").replace(" ", "").toLowerCase());
+
 /* ---------- detail dialog ---------- */
 function openDetail(id) {
   const e = ALL.find((x) => x.id === id); if (!e) return;
@@ -243,12 +313,17 @@ function update() {
   writeHash();
   renderChips();
   const events = ALL.filter((e) => matches(e));
-  $("#count").textContent = `${events.length.toLocaleString()} event${events.length === 1 ? "" : "s"}` +
-    (view === "cal" ? " (all dates)" : "");
+  let count = `${events.length.toLocaleString()} event${events.length === 1 ? "" : "s"}`;
   $("#when-box").hidden = view === "cal";
   document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-selected", b.dataset.view === view));
-  $("#list").hidden = view !== "list"; $("#cal").hidden = view !== "cal";
-  if (view === "list") renderList(events); else renderCal(events);
+  $("#list").hidden = view !== "list"; $("#cal").hidden = view !== "cal"; $("#map-wrap").hidden = view !== "map";
+  if (view === "list") renderList(events);
+  else if (view === "cal") { renderCal(events); count += " (all dates)"; }
+  else {
+    const r = renderMap(events);
+    if (r) count += ` at ${r.venues} venue${r.venues === 1 ? "" : "s"}` + (r.noLoc ? ` (${r.noLoc} without a location not shown)` : "");
+  }
+  $("#count").textContent = count;
 }
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -261,6 +336,7 @@ async function init() {
     return;
   }
   ALL = data.events;
+  HOME = data.home;
   $("#home-name").textContent = data.home.name.split(",")[0];
   buildOptions(status.sources.map((s) => s.name));
   state = readHash();

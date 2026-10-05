@@ -29,7 +29,7 @@ DATA = ROOT / "data"
 def main(only: list[str]) -> None:
     cfg = yaml.safe_load((ROOT / "sources.yaml").read_text())
     now = datetime.now(CHICAGO)
-    ctx = {"now": now, "root": ROOT}
+    ctx = {"now": now, "root": ROOT, "window_days": cfg.get("window_days", 120)}
     prev = _load_json(DATA / "events.json", {}).get("events", [])
     prev_status = {s["id"]: s for s in _load_json(DATA / "status.json", {}).get("sources", [])}
 
@@ -98,8 +98,10 @@ def _cost(e: dict, rules: list[dict]) -> tuple[str, str]:
     for r in rules:
         if "category" in r and r["category"] != e["category"]:
             continue
-        if "source" in r and r["source"] not in e["src"]:
-            continue
+        if "source" in r:
+            srcs = r["source"] if isinstance(r["source"], list) else [r["source"]]
+            if not set(srcs) & set(e["src"]):
+                continue
         if "sport" in r:
             sports = r["sport"] if isinstance(r["sport"], list) else [r["sport"]]
             if e["sport"] not in sports:
@@ -107,6 +109,8 @@ def _cost(e: dict, rules: list[dict]) -> tuple[str, str]:
         if "level" in r and r["level"] != e["level"]:
             continue
         if "title_regex" in r and not re.search(r["title_regex"], e["title"]):
+            continue
+        if "tickets" in r and bool(e.get("tickets")) != r["tickets"]:
             continue
         return r["tier"], r.get("note", "")
     return "Unknown", ""

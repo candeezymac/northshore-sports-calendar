@@ -34,6 +34,38 @@ sources:
     home_venue: {name: "Northwestern campus, Evanston", lat: 42.0565, lon: -87.6753}
     home_regex: "Evanston"   # only these "home" events get the campus coordinates
 
+  # SIDEARM sites (/services/responsive-calendar.ashx). home_venue = default pin for home games;
+  # facilities = exact pins for specific venues (facility title as the site spells it).
+  - id: lakeforestcollege
+    name: Lake Forest College
+    type: sidearm
+    base_url: https://goforesters.com
+    category: College
+    home_venue: {name: "Lake Forest College campus", lat: 42.2490, lon: -87.8288}
+
+  - id: loyola
+    name: Loyola Chicago
+    type: sidearm
+    base_url: https://loyolaramblers.com
+    category: College
+    home_venue: {name: "Loyola Lake Shore campus", lat: 41.9990, lon: -87.6580}
+
+  - id: uic
+    name: UIC
+    type: sidearm
+    base_url: https://uicflames.com
+    category: College
+    home_venue: {name: "UIC campus", lat: 41.8720, lon: -87.6560}
+
+  - id: depaul
+    name: DePaul
+    type: sidearm
+    base_url: https://depaulbluedemons.com
+    category: College
+    home_venue: {name: "DePaul Lincoln Park campus", lat: 41.9246, lon: -87.6553}
+    facilities:
+      Wintrust Arena: [41.8537, -87.6200]
+
   # ---- One-off events typed in by hand (manual_events.yaml)
   - {id: manual, name: Other events, type: manual, file: manual_events.yaml, category: Other}
 
@@ -50,3 +82,8 @@ cost_rules:
   - {source: northwestern, sport: [Lacrosse, Softball, Volleyball, Wrestling], tier: "$",
      note: "Usually ticketed but inexpensive; check nusports.com/tickets"}
   - {source: northwestern, tier: Free, note: "Most Northwestern Olympic-sport events are free"}
+  - {source: lakeforestcollege, tier: Free, note: "Division III: games are free to attend"}
+  - {source: [loyola, depaul], sport: Basketball, tier: "$$", note: "Ticketed Division I basketball"}
+  - {source: uic, sport: Basketball, tier: "$", note: "Ticketed, usually inexpensive"}
+  - {category: College, tickets: true, tier: "$", note: "Tickets sold for this event (see event page)"}
+  - {category: College, tier: Free, note: "Most college Olympic-sport events are free"}

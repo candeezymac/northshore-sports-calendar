@@ -283,6 +283,7 @@ function openDetail(id) {
     </dl>
     <div class="actions">
       ${e.url ? `<a class="btn primary" href="${esc(e.url)}" target="_blank" rel="noopener">Event page</a>` : ""}
+      ${e.tickets ? `<a class="btn" href="${esc(e.tickets)}" target="_blank" rel="noopener">Tickets</a>` : ""}
       <button class="btn" id="ics">Add to my calendar</button>
     </div>`;
   $("#ics").onclick = () => downloadIcs(e);

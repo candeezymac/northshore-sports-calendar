@@ -7,13 +7,13 @@ const PAGE = 250; // list items rendered before "Show more"
 const ORDER = {
   cost: ["Free", "$", "$$", "Unknown"],
   cat: ["High School", "College", "Pro / Minor", "Other"],
-  level: ["Varsity", "JV", "Frosh/Soph", "Other"],
+  level: ["Varsity", "Pro", "JV", "Frosh/Soph", "Other"],
   gender: ["Boys/Men", "Girls/Women", "Coed/Other"],
 };
 const WHEN = [["today", "Today"], ["weekend", "This weekend"], ["7", "Next 7 days"], ["30", "Next 30 days"], ["all", "All"]];
 const DIST = [["5", "≤ 5 mi"], ["10", "≤ 10 mi"], ["15", "≤ 15 mi"], ["25", "≤ 25 mi"], ["any", "Any"]];
 const COST_LABEL = { Free: "Free", $: "$ cheap", $$: "$$ ticketed", Unknown: "Cost ?" };
-const DEFAULTS = { when: "30", dist: "15", level: ["Varsity"] };
+const DEFAULTS = { when: "30", dist: "15", level: ["Varsity", "Pro"] };
 const MULTI = ["cost", "cat", "level", "gender", "sport", "team"];
 
 const EMOJI = {

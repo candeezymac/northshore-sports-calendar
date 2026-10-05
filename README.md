@@ -14,6 +14,9 @@ sources.yaml ──► pipeline/fetch.py ──► data/events.json + data/statu
 - **`pipeline/adapters/`** holds one small module per feed type:
   - `gobound.py`: Illinois high schools on GoBound, at `gobound.com/il/schools/<slug>/calendar/ical`. Feeds are tagged with sport, level, gender and GPS. Practices, facility bookings and non-athletic activities (band, debate…) are skipped.
   - `wmt.py`: college sites on the WMT platform, such as `nusports.com/website-api/schedule-events`.
+  - `sidearm.py`: college sites on SIDEARM (Lake Forest College, Loyola, UIC, DePaul), via `/services/responsive-calendar.ashx`. One week per call, with sport, home/away, facility and tickets link.
+  - `hockeytech.py`: HockeyTech hockey leagues (AHL Chicago Wolves; it also covers USHL, ECHL, etc.).
+  - `espn.py`: ESPN's public team-schedule API (NWSL Chicago Stars FC).
   - `ics.py`: any generic iCal feed (most college/team sites).
   - `manual.py`: one-off events typed into `manual_events.yaml`.
 - **De-duplication:** a game between two tracked schools (e.g. DHS vs HPHS) appears in both feeds. It's merged into one event that's tagged with both schools.
@@ -49,8 +52,13 @@ GitHub Actions (`.github/workflows/refresh.yml`) runs the pipeline nightly, and 
 - **Map view** (Leaflet + OpenStreetMap tiles): one dot per venue, sized by how many games it hosts and colored by type, with a dashed ring for the distance filter. Click a dot to see its games; click a game for details. Events with no known location (e.g. Northwestern away games) aren't shown on the map.
 - Each event's detail card has a map link, the event page link, and an **Add to my calendar** button (.ics download).
 
+## Live site
+
+https://candeezymac.github.io/northshore-sports-calendar/ (GitHub Pages from `main`, root folder).
+
 ## Roadmap
 
 1. ✅ MVP: 8 North Shore high schools (GoBound) + Northwestern.
-2. More local colleges: Lake Forest College, Loyola, UIC, DePaul.
-3. Minor-league / pro: Chicago Dogs, Wolves, Chicago Stars, Fire II, Schaumburg Boomers, Windy City ThunderBolts.
+2. ✅ Local colleges: Lake Forest College, Loyola, UIC, DePaul.
+3. ✅ Pro/minor (part 1): Chicago Wolves (AHL), Chicago Stars FC (NWSL).
+4. **Revisit ~Jan–Feb 2027:** Chicago Dogs, Schaumburg Boomers, Windy City ThunderBolts, Chicago Fire II. None had a clean feed as of 2026-10-05, and their seasons start in May, beyond the 120-day window. Likely options are scraping the Boomers' schedule pages, the Frontier League stats on pro.iscorecentral.com, or adding games via `manual_events.yaml`.

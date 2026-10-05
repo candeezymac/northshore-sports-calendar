@@ -66,6 +66,37 @@ sources:
     facilities:
       Wintrust Arena: [41.8537, -87.6200]
 
+  # ---- Pro / minor league
+  - id: wolves
+    name: Chicago Wolves
+    type: hockeytech
+    client_code: ahl
+    key: 50c2cd9b5e18e390        # public key used by theahl.com's own stats pages
+    team_id: 330
+    category: Pro / Minor
+    link: https://www.chicagowolves.com/schedule/
+    venues: {Allstate Arena: [41.9875, -87.8889]}
+
+  - id: stars
+    name: Chicago Stars FC
+    type: espn
+    league: soccer/usa.nwsl
+    team_id: 15360
+    sport: Soccer
+    gender: Girls/Women
+    category: Pro / Minor
+    link: https://chicagostarsfc.com/schedule
+    venues:
+      Martin Stadium: [42.0592, -87.6727]
+      SeatGeek Stadium: [41.7646, -87.8063]
+      Wrigley Field: [41.9484, -87.6553]
+
+  # Seasonal teams still to add (no clean feed found 2026-10-05; seasons start May 2027,
+  # beyond the 120-day window until ~Jan). Revisit when game times are posted:
+  #   Chicago Dogs (American Association, Rosemont), Schaumburg Boomers + Windy City
+  #   ThunderBolts (Frontier League; stats on pro.iscorecentral.com/FL), Chicago Fire II
+  #   (MLS Next Pro; not on ESPN's API).
+
   # ---- One-off events typed in by hand (manual_events.yaml)
   - {id: manual, name: Other events, type: manual, file: manual_events.yaml, category: Other}
 
@@ -87,3 +118,5 @@ cost_rules:
   - {source: uic, sport: Basketball, tier: "$", note: "Ticketed, usually inexpensive"}
   - {category: College, tickets: true, tier: "$", note: "Tickets sold for this event (see event page)"}
   - {category: College, tier: Free, note: "Most college Olympic-sport events are free"}
+  - {source: wolves, tier: "$$", note: "Ticketed; cheapest seats are usually ~$15–25, with frequent family/kids deals"}
+  - {source: stars, tier: "$$", note: "Ticketed; cheapest seats are usually ~$20–30"}

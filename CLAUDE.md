@@ -6,6 +6,7 @@ See README.md for the full picture. Quick notes:
 - Python deps live in `.venv` (local Python is 3.9, so keep code 3.9-compatible; CI uses 3.12). Run `.venv/bin/python -W ignore pipeline/fetch.py`.
 - Serve with `./start.sh` (port 8000). Never test via file://.
 - New sources go in `sources.yaml`. Only write a new adapter if no existing `type` fits. Each adapter returns `common.event(...)` dicts.
+- After changing app.js/styles.css, bump the `?v=` tag on both in index.html (cache-busting for phones/Pages CDN).
 - `data/` is generated; it's committed because Pages serves it. Don't hand-edit it.
 - Cost tiers come from `cost_rules` in sources.yaml (first match wins). Keep notes honest that they're estimates.
 - Project log lives in the Notion page "Local sports calendar project" (Log entries most-recent-first).

@@ -199,17 +199,24 @@ function renderCal(events) {
 
 /* ---------- map view ---------- */
 const CAT_COLOR = { "High School": "#2f7ed8", College: "#8e44ad", "Pro / Minor": "#e67e22", Other: "#16a085" };
-let map = null, mapLayer = null, mapDist = null;
+let map = null, mapLayer = null, mapDist = null, mapFitTo = null, autoFit = true, fitting = false;
 function renderMap(events) {
   if (!window.L) { $("#map").textContent = "Map library failed to load."; return; }
   if (!map) {
-    map = L.map("map", { scrollWheelZoom: false }).setView([HOME.lat, HOME.lon], 11);
+    map = L.map("map", { scrollWheelZoom: false, zoomSnap: 0.25 }).setView([HOME.lat, HOME.lon], 11);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
     L.marker([HOME.lat, HOME.lon], { title: HOME.name, icon: L.divIcon({ className: "home-pin", html: "🏠", iconSize: [24, 24] }) })
       .bindTooltip(HOME.name.split(",")[0]).addTo(map);
     mapLayer = L.layerGroup().addTo(map);
+    // Once the user pans/zooms, stop auto-fitting. Programmatic fits set `fitting`.
+    map.on("dragstart", () => { autoFit = false; });
+    map.on("zoomstart", () => { if (!fitting) autoFit = false; });
+    map.on("moveend", () => { fitting = false; });
+    // The map box can change size after first paint (phone layout, scrollbar, rotation).
+    // Re-measure, and re-fit if the user hasn't moved the map yet.
+    new ResizeObserver(() => { map.invalidateSize(); if (autoFit) fitMap(); }).observe($("#map"));
     $("#map").addEventListener("click", (ev) => {
       const b = ev.target.closest("[data-id]"); if (b) return openDetail(b.dataset.id);
       const v = ev.target.closest("[data-venue]");
@@ -254,15 +261,20 @@ function renderMap(events) {
   }
   if (mapDist !== state.dist) {
     mapDist = state.dist;
+    autoFit = true;
     const pts = [...venues.values()].map((v) => [v[0].lat, v[0].lon]).concat([[HOME.lat, HOME.lon]]);
-    // wait a frame so the just-unhidden map has its real size before fitting
-    requestAnimationFrame(() => {
-      map.invalidateSize();
-      if (state.dist !== "any") map.fitBounds(L.latLng(HOME.lat, HOME.lon).toBounds(+state.dist * 1609.34 * 2), { padding: [10, 10] });
-      else if (pts.length > 1) map.fitBounds(pts, { padding: [20, 20], maxZoom: 13 });
-    });
+    mapFitTo = state.dist !== "any" ? L.latLng(HOME.lat, HOME.lon).toBounds(+state.dist * 1609.34 * 2)
+      : pts.length > 1 ? L.latLngBounds(pts) : null;
   }
+  // wait a frame so a just-unhidden map has its real size before fitting
+  requestAnimationFrame(() => { map.invalidateSize(); if (autoFit) fitMap(); });
   return { venues: venues.size, noLoc };
+}
+function fitMap() {
+  if (!mapFitTo || !map.getSize().x) return;
+  fitting = true;
+  map.fitBounds(mapFitTo, { padding: [10, 10], maxZoom: 13, animate: false });
+  fitting = false;
 }
 const fmtShort = (e) => new Date(e.start.slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US",
   { weekday: "short", month: "numeric", day: "numeric", timeZone: "UTC" }) + " " + (e.all_day ? "" : fmtTime(e).replace(":00", "").replace(" ", "").toLowerCase());
@@ -361,6 +373,8 @@ async function init() {
     if (ev.target.id === "more") { shown += PAGE; update(); return; }
     const c = ev.target.closest(".card"); if (c) openDetail(c.dataset.id);
   };
+  // shared/bookmarked links: react when only the #... part of the URL changes
+  addEventListener("hashchange", () => { state = readHash(); $("#q").value = state.q; shown = PAGE; update(); });
   $("#detail").addEventListener("click", (ev) => { if (ev.target === $("#detail")) $("#detail").close(); });
   update();
 }
